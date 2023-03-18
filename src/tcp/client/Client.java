@@ -1,11 +1,14 @@
 package tcp.client;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 import tcp.server.ServerThread;
 
@@ -19,17 +22,18 @@ public class Client {
                 // Open a socket to the server
                 Socket socket = new Socket(serverAddress, serverPort);
                 // Open input and output streams on the socket
-                PrintWriter out = new PrintWriter(socket.getOutputStream(), true);
-                BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));) {
+
+                DataInputStream in = new DataInputStream(socket.getInputStream());
+                DataOutputStream out = new DataOutputStream(socket.getOutputStream());) {
             // Read the filename from the user
             BufferedReader userIn = new BufferedReader(new InputStreamReader(System.in));
             System.out.println("Ingrese 1 para el de 100MB, 2 para el de 200MB:");
             String opcion = userIn.readLine();
 
-            out.println(opcion);
+            out.writeUTF(opcion);
 
             // Receive the hash code from the server
-            String hashCode = in.readLine();
+            String hashCode = in.readUTF();
             if (hashCode.equals("ServerThread: File not found.")) {
                 System.out.println(hashCode);
                 return;
@@ -47,16 +51,19 @@ public class Client {
                     System.getProperty("user.dir") + "/arrival/" + fileName)) {
                 byte[] buffer = new byte[4096];
                 int bytesRead;
-                while ((bytesRead = socket.getInputStream().read(buffer)) != -1) {
+                while ((bytesRead = in.read(buffer)) != -1) {
+                    System.out.println("Client: Received " + bytesRead + " bytes.");
                     fileOutputStream.write(buffer, 0, bytesRead);
                 }
+                // Flush and close the output stream
+                fileOutputStream.close();
             } catch (IOException e) {
                 System.err.println("Client: Could not write file.");
             }
 
             // Verify the hash code of the received file
-            byte[] fileBytes = new byte[(int) socket.getInputStream().available()];
-            socket.getInputStream().read(fileBytes);
+            byte[] fileBytes = Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "/arrival/" + fileName));
+
             String receivedHashCode = ServerThread.getHashCode(fileBytes);
             if (receivedHashCode.equals(hashCode)) {
                 System.out.println("File received successfully. Hash code verified.");

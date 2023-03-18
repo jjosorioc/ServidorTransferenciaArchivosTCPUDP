@@ -1,11 +1,10 @@
 package tcp.server;
 
-import java.io.BufferedReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -25,13 +24,13 @@ public class ServerThread extends Thread {
         System.out.println("ServerThread " + idThread + ": running");
 
         // Open input and output streams on the client socket
-        PrintWriter out = null;
-        BufferedReader in = null;
+        DataInputStream in = null;
+        DataOutputStream out = null;
 
         try {
 
-            out = new PrintWriter(serverSocket.getOutputStream(), true);
-            in = new BufferedReader(new InputStreamReader(serverSocket.getInputStream()));
+            out = new DataOutputStream(serverSocket.getOutputStream());
+            in = new DataInputStream(serverSocket.getInputStream());
         } catch (IOException e) {
             System.err.println("In or Out failed.");
         }
@@ -39,7 +38,7 @@ public class ServerThread extends Thread {
         // Read the filename from the client
         String fileName = null;
         try {
-            fileName = in.readLine();
+            fileName = in.readUTF();
         } catch (IOException e) {
             System.err.println("Read failed.");
         }
@@ -51,41 +50,49 @@ public class ServerThread extends Thread {
         System.out.println("Sending file: " + fileName);
 
         // Send the file to the client
-        File file = new File(System.getProperty("user.dir") + "/filesFolder/" + fileName);
+        String filePath = System.getProperty("user.dir") + "/filesFolder/" + fileName;
+        File file = new File(filePath);
         if (!file.exists()) {
-            out.println("ServerThread: File not found.");
+            try {
+                out.writeUTF("ServerThread: File not found.");
+            } catch (IOException e) {
+                System.err.println("Server: Could not send error message.");
+            }
         } else {
-            try (// Open a FileInputStream on the file
-                    FileInputStream fileInputStream = new FileInputStream(file)) {
+            // Open a FileInputStream on the file
+            try (FileInputStream fileInputStream = new FileInputStream(file)) {
+
                 // Calculate the file's hash code
                 byte[] fileBytes = new byte[(int) file.length()];
+
+                System.out.println("File size: " + file.length() + " bytes.");
                 fileInputStream.read(fileBytes);
                 String hashCode = getHashCode(fileBytes);
                 System.out.println("Hash code of file: " + hashCode);
 
                 // Send the file and its hash code to the client
-                out.println(hashCode);
+                out.writeUTF(hashCode);
                 byte[] buffer = new byte[4096];
+
                 int bytesRead;
                 while ((bytesRead = fileInputStream.read(buffer)) != -1) {
-                    serverSocket.getOutputStream().write(buffer, 0, bytesRead);
+                    out.write(buffer, 0, bytesRead);
+                    System.out.println("ServerThread " + idThread + ": Sent " + bytesRead + " bytes.");
                 }
 
                 // Clean up resources
                 fileInputStream.close();
+                out.close();
+                in.close();
+                serverSocket.close();
+
             } catch (IOException e) {
                 System.err.println("Could not read file.");
             }
 
-            try {
-                out.close();
-                in.close();
-                serverSocket.close();
-            } catch (IOException e) {
-                System.err.println("Could not close.");
-            }
-
         }
+
+        System.out.println("ServerThread " + idThread + ": done");
 
     }
 
