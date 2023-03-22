@@ -20,14 +20,14 @@ public class Client {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingrese 1 para el archivo de 100MB o 2 para el de 200 GB:");
+        System.out.print("Ingrese 1 para el archivo de 100MB o 2 para el de 200MB:");
         String fileName = scanner.nextLine();
         scanner.close();
 
         if (fileName.equals("1")) {
             fileName = "100MB.txt";
         } else if (fileName.equals("2")) {
-            fileName = "200GB.txt";
+            fileName = "200MB.txt";
         } else {
             System.out.println("Opcion invalida");
             return;
@@ -84,7 +84,7 @@ public class Client {
 
 
         } catch (IOException ex) {
-            System.out.println("Error Client: " + ex.getMessage());
+            System.out.println("The client could not connect to the server");
             ex.printStackTrace();
         }
     }
