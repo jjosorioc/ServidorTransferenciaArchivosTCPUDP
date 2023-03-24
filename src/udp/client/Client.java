@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.SocketTimeoutException;
 
 public class Client {
     
@@ -39,14 +40,31 @@ public class Client {
         // se envia el paquete con el metodo send
         clientSocket.send(sendPacket);
         //El cliente espera para recibir respuesta del servidor. Guarda la info en otro socket
-        byte[] receiveData = new byte[1024];
+        byte[] receiveData = new byte[65507];
         DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
         clientSocket.receive(receivePacket);
 
+        clientSocket.setSoTimeout(5000); // set timeout to 5 seconds
+
         //El cliente guarda la info recibida en un archivo
         FileOutputStream fileOutputStream = new FileOutputStream(new File("received_" + fileName));
-        fileOutputStream.write(receivePacket.getData(), 0, receivePacket.getLength());
-
+        int i=1;
+        while(true){
+            try{
+                clientSocket.receive(receivePacket);
+            }catch(SocketTimeoutException e){
+                System.out.println("Timeout ocurred. no more data to receive.");
+                break;
+            }
+            byte[] packetData = receivePacket.getData();
+            int packetLength = receivePacket.getLength();
+            if (packetLength <= 0) {
+                break;
+            }
+            fileOutputStream.write(packetData, 0, packetLength);
+            System.out.println("Received packet " + i);
+            i+=1;
+        }
         System.out.println("File received from " + receivePacket.getAddress() + " on port " + receivePacket.getPort());
         //cierra la conexion
         clientSocket.close ();

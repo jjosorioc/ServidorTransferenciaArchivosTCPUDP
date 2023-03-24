@@ -8,6 +8,8 @@ public class Server {
         // Datagram socket repreenta un UDP socket
         DatagramSocket serverSocket = new DatagramSocket(9876);
 
+        System.out.println("Server started on port 9876");
+
         while (true) {
             byte[] receiveData = new byte[1024];
             byte[] sendData = new byte[1024];
