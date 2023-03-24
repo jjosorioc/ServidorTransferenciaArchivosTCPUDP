@@ -20,7 +20,6 @@ public class ServerThread extends Thread {
     private ServerSocket communicationServerSocket;
 
     public ServerThread(Socket sc, int idThread) {
-
         this.clientSocket = sc;
         this.idThread = idThread;
     }
