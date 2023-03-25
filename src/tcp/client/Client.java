@@ -60,7 +60,7 @@ public class Client {
             socket.close();
 
 
-            Socket socket2 = new Socket("localhost", 8000);
+            Socket socket2 = new Socket(serverAddress, 8000);
             BufferedReader in = new BufferedReader(new InputStreamReader(socket2.getInputStream()));
 
             // Receive Hash code from server
