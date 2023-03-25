@@ -19,21 +19,21 @@ public class ClientMain {
         if (fileName.equals("1")) {
             fileName = "100MB.txt";
         } else if (fileName.equals("2")) {
-            fileName = "small.txt";
+            fileName = "200MB.txt";
         } else {
             System.out.println("Invalid option");
             return;
         }
         System.out.println("Enter number of clients: ");
-        int total = 0;
+        int numConexiones = 0;
         try {
-            total = Integer.parseInt(inFromUser.readLine());
+            numConexiones = Integer.parseInt(inFromUser.readLine());
         } catch (IOException e) {
             System.out.println("Error reading input");
         }
 
-        for (int i = 0; i < total; i++) {
-            Client client = new Client(fileName);
+        for (int i = 0; i < numConexiones; i++) {
+            Client client = new Client(fileName, numConexiones);
             client.start();
         }
     }

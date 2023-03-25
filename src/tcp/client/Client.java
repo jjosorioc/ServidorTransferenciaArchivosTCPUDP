@@ -20,13 +20,15 @@ public class Client extends Thread {
     String fileName = null;
     public static int ID = 0;
     private int idClient;
+    private int numConexiones;
 
 
     /**
      * Constructor para cuando se desea ejecutar un solo cliente
      */
-    public Client() {
+    public Client(int numConexiones) {
         this.idClient = ID;
+        this.numConexiones = 1;
     }
 
     /**
@@ -34,8 +36,9 @@ public class Client extends Thread {
      * 
      * @param fileName
      */
-    public Client(String fileName) {
+    public Client(String fileName, int numConexiones) {
         this.fileName = fileName;
+        this.numConexiones = numConexiones;
 
         synchronized (this) {
             this.idClient = ID;
@@ -75,8 +78,9 @@ public class Client extends Thread {
 
             // Receive file from server
             InputStream inputStream = socket.getInputStream();
-            fileName = "client_" + this.idClient + "_" + fileName;
-            FileOutputStream fileOutputStream = new FileOutputStream("./arrival/" + fileName);
+            fileName = "Cliente" + this.idClient + "-Prueba-" + numConexiones + ".txt";
+            FileOutputStream fileOutputStream =
+                    new FileOutputStream("./archivosRecibidos/" + fileName);
             byte[] buffer = new byte[4096];
             int bytesRead;
             while ((bytesRead = inputStream.read(buffer)) != -1) {
@@ -101,7 +105,7 @@ public class Client extends Thread {
 
 
             // Calculate the file's hash code
-            byte[] fileBytes = Files.readAllBytes(Paths.get("./arrival/" + fileName));
+            byte[] fileBytes = Files.readAllBytes(Paths.get("./archivosRecibidos/" + fileName));
             String hashCode2 = ServerThread.getHashCode(fileBytes);
 
             System.out.println("Received hash code: " + hashCode);

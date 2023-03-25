@@ -3,6 +3,7 @@ package tcp.server;
 import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,11 +19,14 @@ public class ServerThread extends Thread {
     private Socket clientSocket;
     private int idThread;
     private ServerSocket communicationServerSocket;
+    private String logFileName;
+    private static Object lock = new Object();
 
-    public ServerThread(Socket sc, int idThread, ServerSocket cs) {
+    public ServerThread(Socket sc, int idThread, ServerSocket cs, String fileName) {
         this.clientSocket = sc;
         this.idThread = idThread;
         this.communicationServerSocket = cs;
+        this.logFileName = fileName;
     }
 
     @Override
@@ -46,9 +50,29 @@ public class ServerThread extends Thread {
                 byte[] buffer = new byte[4096];
 
                 int bytesRead;
+                long startTime = System.currentTimeMillis();
                 while ((bytesRead = fileInputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
                 }
+                long endTime = System.currentTimeMillis();
+
+
+                String logSentence =
+                        "Thread " + this.idThread + " sent the file called '" + fileName + "' ("
+                                + ((double) Files.size(Paths.get("./filesFolder/" + fileName))
+                                        / 1048576)
+                                + " MB) to " + clientSocket.getInetAddress() + " in "
+                                + (endTime - startTime) + " miliseconds.\n";
+
+
+                synchronized (lock) {
+                    PrintWriter logFile = new PrintWriter(
+                            new FileWriter("./src/tcp/server/logs/" + logFileName, true));
+                    logFile.println(logSentence);
+                    logFile.close();
+                }
+
+
 
                 // Close streams
                 dataInputStream.close();

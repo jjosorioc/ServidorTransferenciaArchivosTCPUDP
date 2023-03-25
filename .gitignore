@@ -1,4 +1,6 @@
 filesFolder/100MB.txt
 filesFolder/200MB.txt
 
-arrival/*
+archivosRecibidos/*
+src/tcp/server/logs/*
+src/tcp/client/logs/*
