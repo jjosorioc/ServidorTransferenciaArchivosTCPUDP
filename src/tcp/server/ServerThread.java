@@ -19,19 +19,16 @@ public class ServerThread extends Thread {
     private int idThread;
     private ServerSocket communicationServerSocket;
 
-    public ServerThread(Socket sc, int idThread) {
+    public ServerThread(Socket sc, int idThread, ServerSocket cs) {
         this.clientSocket = sc;
         this.idThread = idThread;
+        this.communicationServerSocket = cs;
     }
 
     @Override
     public void run() {
         System.out.println("ServerThread " + idThread + ": running");
-        try {
-            communicationServerSocket = new ServerSocket(8000);
-        } catch (IOException e) {
-            System.err.println("Could not listen on port: 8000.");
-        }
+
 
         try (InputStream inputStream = clientSocket.getInputStream()) {
             DataInputStream dataInputStream = new DataInputStream(inputStream);
@@ -62,13 +59,10 @@ public class ServerThread extends Thread {
                 clientSocket.close();
 
 
-                /**
-                 * Open the communication server socket
-                 */
                 Socket communicationSocket = null;
                 PrintWriter out = null;
                 try {
-                    communicationSocket = communicationServerSocket.accept();
+                    communicationSocket = this.communicationServerSocket.accept();
                     out = new PrintWriter(communicationSocket.getOutputStream(), true);
 
                 } catch (IOException e) {
@@ -82,6 +76,9 @@ public class ServerThread extends Thread {
                 System.out.println("Hash code of file: " + hashCode);
                 // Send the file and its hash code to the client
                 out.println(hashCode);
+
+                out.close();
+                communicationSocket.close();
 
 
 

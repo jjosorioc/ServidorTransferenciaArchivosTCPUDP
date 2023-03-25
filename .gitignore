@@ -1,5 +1,4 @@
 filesFolder/100MB.txt
 filesFolder/200MB.txt
 
-arrival/100MB.txt
-arrival/200MB.txt
+arrival/*

@@ -14,23 +14,53 @@ import java.util.Scanner;
 import tcp.server.ServerThread;
 
 
-public class Client {
+public class Client extends Thread {
     private static String serverAddress = "localhost";
     private static int serverPort = 5000;
+    String fileName = null;
+    public static int ID = 0;
+    private int idClient;
 
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingrese 1 para el archivo de 100MB o 2 para el de 200MB:");
-        String fileName = scanner.nextLine();
-        scanner.close();
 
-        if (fileName.equals("1")) {
-            fileName = "100MB.txt";
-        } else if (fileName.equals("2")) {
-            fileName = "200MB.txt";
-        } else {
-            System.out.println("Opcion invalida");
-            return;
+    /**
+     * Constructor para cuando se desea ejecutar un solo cliente
+     */
+    public Client() {
+        this.idClient = ID;
+    }
+
+    /**
+     * Constructor para ejecutar el programa desde ClientMain
+     * 
+     * @param fileName
+     */
+    public Client(String fileName) {
+        this.fileName = fileName;
+
+        synchronized (this) {
+            this.idClient = ID;
+            ID++;
+        }
+
+    }
+
+    @Override
+    public void run() {
+
+        if (this.fileName == null) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.print("Ingrese 1 para el archivo de 100MB o 2 para el de 200MB: ");
+            fileName = scanner.nextLine();
+            scanner.close();
+
+            if (fileName.equals("1")) {
+                fileName = "100MB.txt";
+            } else if (fileName.equals("2")) {
+                fileName = "200MB.txt";
+            } else {
+                System.out.println("Opcion invalida");
+                return;
+            }
         }
 
         try (Socket socket = new Socket(serverAddress, serverPort)) {
@@ -45,6 +75,7 @@ public class Client {
 
             // Receive file from server
             InputStream inputStream = socket.getInputStream();
+            fileName = "client_" + this.idClient + "_" + fileName;
             FileOutputStream fileOutputStream = new FileOutputStream("./arrival/" + fileName);
             byte[] buffer = new byte[4096];
             int bytesRead;
