@@ -4,3 +4,10 @@ filesFolder/200MB.txt
 archivosRecibidos/*
 src/tcp/server/logs/*
 src/tcp/client/logs/*
+src/udp/server/logs/*
+src/udp/client/logs/*
+
+bin/tcp/server/logs/*
+bin/tcp/client/logs/*
+bin/udp/server/logs/*
+bin/udp/client/logs/*

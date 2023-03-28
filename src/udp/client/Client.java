@@ -38,7 +38,7 @@ public class Client extends Thread{
         // se obtiene la ip del 
         InetAddress IPAddress=null;
         try {
-            IPAddress = InetAddress.getByName("localhost");
+            IPAddress = InetAddress.getByName("192.168.1.143");
         } catch (UnknownHostException e) {
             System.out.println("Error getting IP address");
         }
@@ -73,7 +73,7 @@ public class Client extends Thread{
         Instant start=Instant.now();
         int size=0;
         try (//El cliente guarda la info recibida en un archivo
-        FileOutputStream fileOutputStream = new FileOutputStream(new File("ArchivosRecibidos/" + id + "-Prueba" + total+".txt"))) {
+        FileOutputStream fileOutputStream = new FileOutputStream(new File("archivosRecibidos/" + id + "-Prueba" + total+".txt"))) {
             int i=1;
             while(true){
                 try{
@@ -103,7 +103,7 @@ public class Client extends Thread{
         SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
         String fechaFormateada = formato.format(fechaActual);
         try {
-            FileWriter file=new FileWriter(new File("logs/"+fechaFormateada+"-log.txt"));
+            FileWriter file=new FileWriter(new File("./src/udp/client/logs/"+fechaFormateada+"-log.txt"));
             file.write("Tiempo de descarga: "+timeElapsed.toMillis()+" ms");
             file.write("\nNombre archivo : "+fileName);
             file.write("\nTamaño archivo : "+size);

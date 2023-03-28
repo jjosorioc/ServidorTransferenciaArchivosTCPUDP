@@ -68,7 +68,7 @@ public class FileSender extends Thread{
             SimpleDateFormat formato = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss");
             String fechaFormateada = formato.format(fechaActual);
             try {
-                FileWriter file1= new FileWriter(new File("logs/"+fechaFormateada+"-log.txt"));
+                FileWriter file1= new FileWriter(new File("./src/udp/server/logs/"+fechaFormateada+"-log.txt"));
                 file1.write("Tiempo de subida: "+timeElapsed.toMillis()+" ms");
                 file1.write("\nNombre archivo : "+fileName);
                 file1.write("\nTamaño archivo : "+fileSize);
